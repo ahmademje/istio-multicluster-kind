@@ -1,0 +1,14 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: remote-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 172.18.255.151-172.30.255.200
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: remote-adv
+  namespace: metallb-system
