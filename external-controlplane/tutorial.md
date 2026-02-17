@@ -4,14 +4,17 @@ https://istio.io/latest/docs/setup/install/external-controlplane/
 ### ENV SET ###
 CTX_EXTERNAL_CLUSTER=kind-primary
 CTX_REMOTE_CLUSTER=kind-remote
+REMOTE_CLUSTER_NAME=kind-remote
+SSL_SECRET_NAME=NONE
 
 ### end of ENV SET ###
 
+## Pre Req - Create KIND Cluster
 ### Create primary Cluster
 kind create cluster --config istio-multicluster-kind\external-controlplane\kind-cluster\primary.yaml
 
 ### Create remote Cluster
-
+kind create cluster --config istio-multicluster-kind\external-controlplane\kind-cluster\remote.yaml
 
 ### Instal MetalLB for Load Balancer - Primary Cluster
 kubectl --context="${CTX_EXTERNAL_CLUSTER}" apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.12/config/manifests/metallb-native.yaml
@@ -21,6 +24,7 @@ kubectl --context="${CTX_EXTERNAL_CLUSTER}" apply -f istio-multicluster-kind\ext
 kubectl --context="${CTX_REMOTE_CLUSTER}" apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.12/config/manifests/metallb-native.yaml
 kubectl --context="${CTX_REMOTE_CLUSTER}" apply -f istio-multicluster-kind\external-controlplane\kind-cluster\remote-metallb.yaml
 
+## Setup Istio Service Mesh
 ### Install Istio - Primary Cluster
 istioctl install -f istio-multicluster-kind\external-controlplane\kind-cluster\primary-controlplane-gateway.yaml --context="${CTX_EXTERNAL_CLUSTER}"
 
@@ -69,7 +73,7 @@ kubectl get validatingwebhookconfiguration --context="${CTX_REMOTE_CLUSTER}"
 kubectl create namespace external-istiod --context="${CTX_EXTERNAL_CLUSTER}"
 
 check ip server
-docker inspect <kind-container-name-primary>   --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+docker inspect <kind-container-name-remote>   --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
 
 istioctl create-remote-secret \
   --context="${CTX_REMOTE_CLUSTER}" \
